@@ -16,22 +16,29 @@ balltopboundary=(0)
 ballbottomboundary=(290)
 balleftboundary=(0)
 ballrightboundary=(390)
+
 ballup=True
 balleft=True
-run=True
+
+run = False
+game_over = False
+
 paddlespeed=2
-s1=0
-s2=0
-winner=""
+s1 = 0
+s2 = 0
+winner = ""
+
 font=pygame.font.SysFont("arial",30)
 scoretext=font.render("0 | 0",False,(0,0,0))
 winnertext=font.render(winner+" wins",False,(0,0,0))
+
 while True:
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
             sys.exit()
     keys=pygame.key.get_pressed()
+
     if run:
         if keys[pygame.K_UP]:
             paddle2.y-=paddlespeed
@@ -49,19 +56,21 @@ while True:
             paddle.y+=paddlespeed
             if paddle.y>=paddlebottomboundary:
                 paddle.y=paddlebottomboundary
-    else:
+
+    if not run and not game_over:
         if keys[pygame.K_SPACE]:
             paddle.y=(115)
             paddle2.y=(115)
             ball.x=(187)
             ball.y=(135)
             run=True
-    
+
         
     screens.fill("white")
     pygame.draw.rect(screens,"black",paddle)
     pygame.draw.rect(screens,"black",paddle2)
     pygame.draw.rect(screens,"black",ball)
+
     if run:
         scoretext=font.render(f"{s1} | {s2}",False,(0,0,0))
         screens.blit(scoretext,(150,0))
@@ -70,25 +79,32 @@ while True:
             ball.y-=2
         if ballup==False:
             ball.y+=2
+
         # move down
         if ball.y<=balltopboundary:
             ballup=False
             ball.y=balltopboundary
+
         # move up
         if ball.y>=ballbottomboundary:
             ballup=True
             ball.y=ballbottomboundary
+
         # move x
         if balleft==True:
             ball.x-=2
         if balleft==False:
             ball.x+=2
+
         # move left wall
         if ball.x<=balleftboundary:
+            s2 += 1
             balleft=False
             ball.x=balleftboundary
             run=False
+
         if ball.x>=ballrightboundary:
+            s1 += 1
             ball.x=ballrightboundary
             run=False
         
@@ -97,31 +113,26 @@ while True:
             balleft=False
         if ball.colliderect(paddle2):
             balleft=True
-        # score
-        if ball.x<=balleftboundary:
-            s2+=1
-        if ball.x>=ballrightboundary:
-            s1+=1       
-        if s1==10 or s2==10:
-            run=False
-        # winner
-    else:
-        if s1>=10 and s1>s2:
-            winner="Player 1"
-            print(winner+" wins.")
-            winnertext=font.render(winner+" wins",False,(0,0,0))
-            screens.blit(winnertext,(100,40))
+        
+        if s1 >= 10 or s2 >= 10:
+            run = False
+            game_over = True
+            if s1 > s2:
+                winner = "Player 1"
+            else:
+                winner = "Player 2"
 
-        if s2>=10 and s2>s1:
-            winner="Player 2"
-            print(winner+" wins.")
-            winnertext=font.render(winner+" wins.",False,(0,0,0))
-            screens.blit(winnertext,(100,40))
+    if not game_over: 
+        scoretext = font.render(f"{s1} | {s2}", False, (0, 0, 0))
+        screens.blit(scoretext, (150, 0))
 
-        screens.blit(scoretext,(150,0))
+    else:  
+        winnertext = font.render(f"{winner} wins!", False, (0, 0, 0))
+        screens.blit(winnertext, (100, 40))
+
         
 
 
-    
+
     pygame.display.update()
     clock.tick(60) 
